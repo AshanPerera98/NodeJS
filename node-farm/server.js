@@ -2,6 +2,9 @@ const http = require("http");
 const url = require("url");
 const fs = require("fs");
 
+// import replace template module
+const replaceTemp = require("./modules/replaceTemplate");
+
 // This will read the data from the file once when the server starts so it can be read synchronusly
 const tempOverview = fs.readFileSync(
   `${__dirname}/templates/template-overview.html`,
@@ -18,24 +21,6 @@ const tempProduct = fs.readFileSync(
 
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const dataObj = JSON.parse(data);
-
-// function to fill the template with data
-const replaceTemp = (template, product) => {
-  let output = template;
-
-  output = output.replace(/{%ID%}/g, product.id);
-  output = output.replace(/{%PRODUCTNAME%}/g, product.productName);
-  output = output.replace(/{%IMAGE%}/g, product.image);
-  output = output.replace(/{%PRICE%}/g, product.price);
-  output = output.replace(/{%FROM%}/g, product.from);
-  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-  output = output.replace(/{%QUANTITY%}/g, product.quantity);
-  output = output.replace(/{%DESCRIPTION%}/g, product.description);
-  if (!product.organic)
-    output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
-
-  return output;
-};
 
 const server = http.createServer((req, res) => {
   // destructure the req object to get the pathname and query params
