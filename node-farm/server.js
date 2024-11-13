@@ -38,9 +38,10 @@ const replaceTemp = (template, product) => {
 };
 
 const server = http.createServer((req, res) => {
-  console.log(req.url);
+  // destructure the req object to get the pathname and query params
+  const { pathname, query } = url.parse(req.url, true);
 
-  switch (req.url) {
+  switch (pathname) {
     // overview page
     case "/":
     case "/overview":
@@ -59,7 +60,12 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, {
         "Content-Type": "text/html",
       });
-      res.end(tempProduct);
+
+      // get the relevant product data from the dataObj and fill the template with data
+      const product = dataObj[query.id];
+      const output = replaceTemp(tempProduct, product);
+
+      res.end(output);
       break;
 
     // API
