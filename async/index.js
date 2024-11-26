@@ -1,20 +1,37 @@
 const fs = require("fs");
 const superagent = require("superagent");
 
-fs.readFile(`${__dirname}/dog.txt`, (err, data) => {
-  console.log(`Breed: ${data}`);
-
-  superagent
-    .get(`https://dog.ceo/api/breed/${data}/images/random`)
-    .end((err, res) => {
-      if (err) return console.error(err);
-
-      console.log(res.body);
-
-      fs.writeFile("./dog-image.txt", res.body.message, err, () => {
-        if (err) return console.error(err);
-
-        console.log("Image file saved");
-      });
+// Create a new funtion that return promise when reading file
+const readFilePromise = (file) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(file, (err, data) => {
+      if (err) reject(err);
+      resolve(data);
     });
-});
+  });
+};
+
+// Create a new funtion that return promise when writing file
+const writeFilePromise = (file, data) => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(file, data, (err) => {
+      if (err) reject(err);
+      resolve("Write success");
+    });
+  });
+};
+
+readFilePromise(`${__dirname}/dog.txt`)
+  .then((result) => {
+    return superagent.get(`https://dog.ceo/api/breed/${result}/images/random`);
+  })
+  .then((res) => {
+    console.log(res.body);
+    return writeFilePromise("./dog-image.txt", res.body.message);
+  })
+  .then(() => {
+    console.log("Image file saved");
+  })
+  .catch((err) => {
+    console.error(err);
+  });
