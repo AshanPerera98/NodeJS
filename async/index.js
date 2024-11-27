@@ -21,6 +21,51 @@ const writeFilePromise = (file, data) => {
   });
 };
 
+// async await
+const dogImage = async () => {
+  try {
+    const result = await readFilePromise(`${__dirname}/dog.txt`);
+    const res = await superagent.get(
+      `https://dog.ceo/api/breed/${result}/images/random`
+    );
+    console.log(res.body);
+    await writeFilePromise("./dog-image.txt", res.body.message);
+    console.log("Image file saved");
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+  return "This is the returning value from the async function";
+};
+
+// using then to call the async function
+// this is a funtion declaration which will trigger immediately after
+(async () => {
+  try {
+    console.log("Before async function");
+    const x = await dogImage();
+    console.log(x);
+    console.log("After async function");
+  } catch (e) {
+    console.error("This is the eeror from the async function :", err);
+  }
+})();
+
+// using then to call the async function
+/*
+console.log("Before async function");
+dogImage()
+  .then((x) => {
+    console.log(x);
+    console.log("After async function");
+  })
+  .catch((err) => {
+    console.error("This is the eeror from the async function :", err);
+  });
+*/
+
+// promise and then
+/*
 readFilePromise(`${__dirname}/dog.txt`)
   .then((result) => {
     return superagent.get(`https://dog.ceo/api/breed/${result}/images/random`);
@@ -35,3 +80,4 @@ readFilePromise(`${__dirname}/dog.txt`)
   .catch((err) => {
     console.error(err);
   });
+*/
