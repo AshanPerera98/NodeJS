@@ -68,6 +68,22 @@ app.post('/api/v1/tours', (req, res) => {
   );
 });
 
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const tour = tours.find((el) => el.id === parseInt(req.params.id));
+
+  if (!tour)
+    return res
+      .status(404)
+      .json({ status: 'FAIL', message: 'No tours found with this id' });
+
+  res.status(200).json({
+    status: 'SUCCESS',
+    data: {
+      tours: 'This should be the updated tour',
+    },
+  });
+});
+
 app.listen(port, () => {
   console.log(`Listining to port ${port}`);
 });
