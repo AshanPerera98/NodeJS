@@ -3,6 +3,7 @@ const express = require('express');
 
 const port = 3000;
 const app = express();
+app.use(express.json()); // middleware to add the data from the request body to req in method.
 
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
@@ -28,6 +29,26 @@ app.get('/api/v1/tours', (req, res) => {
       tours: tours,
     },
   });
+});
+
+app.post('/api/v1/tours', (req, res) => {
+  const newId = tours.at(-1).id + 1;
+  const newTour = { id: newId, ...req.body };
+
+  tours.push(newTour);
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    (err) => {
+      if (err) return res.status(500).send('Internal server error');
+      res.status(201).json({
+        status: 'SUCCESS',
+        data: {
+          tour: newTour,
+        },
+      });
+    }
+  );
 });
 
 app.listen(port, () => {
