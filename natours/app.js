@@ -76,10 +76,28 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       .status(404)
       .json({ status: 'FAIL', message: 'No tours found with this id' });
 
+  const updatedTour = { ...tour, ...req.body };
+
   res.status(200).json({
     status: 'SUCCESS',
     data: {
-      tours: 'This should be the updated tour',
+      tours: updatedTour,
+    },
+  });
+});
+
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const tour = tours.find((el) => el.id === parseInt(req.params.id));
+
+  if (!tour)
+    return res
+      .status(404)
+      .json({ status: 'FAIL', message: 'No tours found with this id' });
+
+  res.status(204).json({
+    status: 'SUCCESS',
+    data: {
+      tours: null,
     },
   });
 });
