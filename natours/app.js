@@ -31,11 +31,28 @@ app.get('/api/v1/tours', (req, res) => {
   });
 });
 
+app.get('/api/v1/tours/:id', (req, res) => {
+  const tour = tours.find((el) => el.id === parseInt(req.params.id));
+
+  if (!tour)
+    return res
+      .status(404)
+      .json({ status: 'FAIL', message: 'No tours found with this id' });
+
+  res.status(200).json({
+    status: 'SUCCESS',
+    data: {
+      tours: tour,
+    },
+  });
+});
+
 app.post('/api/v1/tours', (req, res) => {
   const newId = tours.at(-1).id + 1;
   const newTour = { id: newId, ...req.body };
 
   tours.push(newTour);
+
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
