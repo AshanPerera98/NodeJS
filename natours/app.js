@@ -5,23 +5,7 @@ const port = 3000;
 const app = express();
 app.use(express.json()); // middleware to add the data from the request body to req in method.
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
-);
-
-app.get('/', (req, res) => {
-  res.status(200).send('Hollo from the server');
-});
-
-app.get('/json', (req, res) => {
-  res.status(200).json({ title: 'JSON', message: 'This is a JSON object' });
-});
-
-app.post('/json', (req, res) => {
-  res.status(200).send('This is POST endpoint');
-});
-
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'SUCCESS',
     resutls: tours.length,
@@ -29,9 +13,9 @@ app.get('/api/v1/tours', (req, res) => {
       tours: tours,
     },
   });
-});
+};
 
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   const tour = tours.find((el) => el.id === parseInt(req.params.id));
 
   if (!tour)
@@ -45,9 +29,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
       tours: tour,
     },
   });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   const newId = tours.at(-1).id + 1;
   const newTour = { id: newId, ...req.body };
 
@@ -66,9 +50,9 @@ app.post('/api/v1/tours', (req, res) => {
       });
     }
   );
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   const tour = tours.find((el) => el.id === parseInt(req.params.id));
 
   if (!tour)
@@ -84,9 +68,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       tours: updatedTour,
     },
   });
-});
+};
 
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   const tour = tours.find((el) => el.id === parseInt(req.params.id));
 
   if (!tour)
@@ -100,7 +84,20 @@ app.delete('/api/v1/tours/:id', (req, res) => {
       tours: null,
     },
   });
-});
+};
+
+// app.get('/api/v1/tours', getAllTours);
+// app.get('/api/v1/tours/:id', getTour);
+// app.post('/api/v1/tours', createTour);
+// app.patch('/api/v1/tours/:id', updateTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
+
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+app
+  .route('/api/v1/tours/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 app.listen(port, () => {
   console.log(`Listining to port ${port}`);
