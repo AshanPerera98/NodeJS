@@ -1,0 +1,87 @@
+const fs = require('fs');
+
+const tours = JSON.parse(
+  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+);
+
+exports.getAllTours = (req, res) => {
+  res.status(200).json({
+    status: 'SUCCESS',
+    requestTime: req.requestTime,
+    resutls: tours.length,
+    data: {
+      tours: tours,
+    },
+  });
+};
+
+exports.getTour = (req, res) => {
+  const tour = tours.find((el) => el.id === parseInt(req.params.id));
+
+  if (!tour)
+    return res
+      .status(404)
+      .json({ status: 'FAIL', message: 'No tours found with this id' });
+
+  res.status(200).json({
+    status: 'SUCCESS',
+    data: {
+      tours: tour,
+    },
+  });
+};
+
+exports.createTour = (req, res) => {
+  const newId = tours.at(-1).id + 1;
+  const newTour = { id: newId, ...req.body };
+
+  tours.push(newTour);
+
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    (err) => {
+      if (err) return res.status(500).send('Internal server error');
+      res.status(201).json({
+        status: 'SUCCESS',
+        data: {
+          tour: newTour,
+        },
+      });
+    }
+  );
+};
+
+exports.updateTour = (req, res) => {
+  const tour = tours.find((el) => el.id === parseInt(req.params.id));
+
+  if (!tour)
+    return res
+      .status(404)
+      .json({ status: 'FAIL', message: 'No tours found with this id' });
+
+  const updatedTour = { ...tour, ...req.body };
+
+  res.status(200).json({
+    status: 'SUCCESS',
+    data: {
+      tours: updatedTour,
+    },
+  });
+};
+
+exports.deleteTour = (req, res) => {
+  const tour = tours.find((el) => el.id === parseInt(req.params.id));
+
+  if (!tour)
+    return res
+      .status(404)
+      .json({ status: 'FAIL', message: 'No tours found with this id' });
+
+  res.status(204).json({
+    status: 'SUCCESS',
+    data: {
+      tours: null,
+    },
+  });
+};
