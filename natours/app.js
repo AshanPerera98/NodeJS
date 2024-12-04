@@ -5,9 +5,24 @@ const port = 3000;
 const app = express();
 app.use(express.json()); // middleware to add the data from the request body to req in method.
 
+app.use((req, res, next) => {
+  console.log('This is a middle ware running');
+  next();
+});
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
+
+const tours = JSON.parse(
+  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
+);
+
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'SUCCESS',
+    requestTime: req.requestTime,
     resutls: tours.length,
     data: {
       tours: tours,
