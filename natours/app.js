@@ -1,9 +1,14 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
 const port = 3000;
 const app = express();
+
+// MIDDLE WARE
+
 app.use(express.json()); // middleware to add the data from the request body to req in method.
+app.use(morgan('dev')); // third party middleware
 
 app.use((req, res, next) => {
   console.log('This is a middle ware running');
@@ -19,6 +24,7 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
+// ROUTE HANDLERS
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'SUCCESS',
@@ -107,6 +113,7 @@ const deleteTour = (req, res) => {
 // app.patch('/api/v1/tours/:id', updateTour);
 // app.delete('/api/v1/tours/:id', deleteTour);
 
+// ROUTES
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app
   .route('/api/v1/tours/:id')
@@ -114,6 +121,7 @@ app
   .patch(updateTour)
   .delete(deleteTour);
 
+//   STARTING SERVER
 app.listen(port, () => {
   console.log(`Listining to port ${port}`);
 });
