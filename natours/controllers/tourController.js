@@ -4,6 +4,19 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
+exports.validId = (req, res, next, val) => {
+  const tour = tours.find((el) => el.id === parseInt(req.params.id));
+
+  if (!tour)
+    return res
+      .status(404)
+      .json({ status: 'FAIL', message: 'No tours found with this id' });
+
+  res.tour = tour;
+
+  next();
+};
+
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'SUCCESS',
@@ -16,17 +29,10 @@ exports.getAllTours = (req, res) => {
 };
 
 exports.getTour = (req, res) => {
-  const tour = tours.find((el) => el.id === parseInt(req.params.id));
-
-  if (!tour)
-    return res
-      .status(404)
-      .json({ status: 'FAIL', message: 'No tours found with this id' });
-
   res.status(200).json({
     status: 'SUCCESS',
     data: {
-      tours: tour,
+      tours: res.tour,
     },
   });
 };
@@ -53,14 +59,7 @@ exports.createTour = (req, res) => {
 };
 
 exports.updateTour = (req, res) => {
-  const tour = tours.find((el) => el.id === parseInt(req.params.id));
-
-  if (!tour)
-    return res
-      .status(404)
-      .json({ status: 'FAIL', message: 'No tours found with this id' });
-
-  const updatedTour = { ...tour, ...req.body };
+  const updatedTour = { ...res.tour, ...req.body };
 
   res.status(200).json({
     status: 'SUCCESS',
@@ -71,13 +70,6 @@ exports.updateTour = (req, res) => {
 };
 
 exports.deleteTour = (req, res) => {
-  const tour = tours.find((el) => el.id === parseInt(req.params.id));
-
-  if (!tour)
-    return res
-      .status(404)
-      .json({ status: 'FAIL', message: 'No tours found with this id' });
-
   res.status(204).json({
     status: 'SUCCESS',
     data: {
