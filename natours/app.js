@@ -9,6 +9,7 @@ const app = express();
 // MIDDLE WARE
 app.use(express.json()); // middleware to add the data from the request body to req in method.
 app.use(morgan('dev')); // third party middleware
+app.use(express.static(`${__dirname}/public`)); // serve static files
 
 app.use((req, res, next) => {
   console.log('This is a middle ware running');
