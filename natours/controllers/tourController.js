@@ -17,6 +17,16 @@ exports.validId = (req, res, next, val) => {
   next();
 };
 
+exports.validateTour = (req, res, next) => {
+  if (!req.body.name || !req.body.price)
+    return res.status(400).json({
+      status: 'FAIL',
+      message: 'Name and price cannot be empty',
+    });
+
+  next();
+};
+
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'SUCCESS',
@@ -44,7 +54,7 @@ exports.createTour = (req, res) => {
   tours.push(newTour);
 
   fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
+    `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
       if (err) return res.status(500).send('Internal server error');
