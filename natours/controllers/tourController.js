@@ -13,10 +13,17 @@ exports.getAllTours = async (req, res) => {
     let query = Tour.find(JSON.parse(queryString));
 
     // Sorting
-    if (!!sort) {
+    if (sort) {
       query.sort(sort.split(',').join(' ')); // adding multiple sorting to gether with [space]
     } else {
       query.sort('-createdAt'); // default sorting
+    }
+
+    // Field limiting
+    if (fields) {
+      query.select(fields.split(',').join(' ')); // selecting only requested fields
+    } else {
+      query.select('-__v'); // excluding fields by default
     }
 
     const tours = await query;
