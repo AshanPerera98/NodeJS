@@ -27,19 +27,21 @@ const tours = JSON.parse(
 const deleteData = async () => {
   try {
     await Tour.deleteMany();
-    console.log('data deleted');
+    console.log('Data deleted');
   } catch (err) {
     console.error(err);
   }
+  process.exit();
 };
 
 const insertData = async () => {
   try {
-    const result = await Tour.create(tours);
+    await Tour.create(tours);
     console.log(`Tours created`);
   } catch (err) {
     console.log(err);
   }
+  process.exit();
 };
 
 if (process.argv.includes('--import')) {
