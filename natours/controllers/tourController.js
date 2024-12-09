@@ -10,7 +10,16 @@ exports.getAllTours = async (req, res) => {
       (match) => `$${match}`
     );
 
-    const tours = await Tour.find(JSON.parse(queryString));
+    let query = Tour.find(JSON.parse(queryString));
+
+    // Sorting
+    if (!!sort) {
+      query.sort(sort.split(',').join(' ')); // adding multiple sorting to gether with [space]
+    } else {
+      query.sort('-createdAt'); // default sorting
+    }
+
+    const tours = await query;
 
     res.status(200).json({
       status: 'SUCCESS',
