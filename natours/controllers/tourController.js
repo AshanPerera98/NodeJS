@@ -1,4 +1,5 @@
 const Tour = require('./../models/tourModel');
+const APIBuilder = require('./../utils/apiBuilder');
 
 // Alias middleware to set the expected query to the requestF
 exports.aliasTopTours = (req, res, next) => {
@@ -11,44 +12,13 @@ exports.aliasTopTours = (req, res, next) => {
 
 exports.getAllTours = async (req, res) => {
   try {
-    const { page, sort, limit, fields, ...queryParams } = req.query; // req.query is query strings (query object)
-
-    // Advance filtering : adding $ infornt of every operator
-    const queryString = JSON.stringify(queryParams).replace(
-      /\b(gte|gt|lte|lt)\b/g,
-      (match) => `$${match}`
-    );
-
-    let query = Tour.find(JSON.parse(queryString));
-
-    // Sorting
-    if (sort) {
-      query.sort(sort.split(',').join(' ')); // adding multiple sorting to gether with [space]
-    } else {
-      query.sort('-createdAt'); // default sorting
-    }
-
-    // Field limiting
-    if (fields) {
-      query.select(fields.split(',').join(' ')); // selecting only requested fields
-    } else {
-      query.select('-__v'); // excluding fields by default
-    }
-
-    // Pagination
-    if (page || limit) {
-      const pageVal = Number(page) || 1;
-      const limitVal = Number(limit) || 50;
-      const skip = (pageVal - 1) * limitVal;
-
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours)
-        throw new Error('Page you requested does not exist');
-
-      query.skip(skip).limit(limitVal); // query for pagination and result limit
-    }
-
-    const tours = await query;
+    // Executing builder class to create the query object
+    const builder = new APIBuilder(Tour.find(), req.query)
+      .filtering()
+      .sorting()
+      .limiting()
+      .paginating();
+    const tours = await builder.query;
 
     res.status(200).json({
       status: 'SUCCESS',
