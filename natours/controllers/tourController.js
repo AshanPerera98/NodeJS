@@ -1,5 +1,14 @@
 const Tour = require('./../models/tourModel');
 
+// Alias middleware to set the expected query to the requestF
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '5'; // set result timit to 5
+  req.query.sort = '-ratingsAverage,price'; // sort by most rated and cheapest
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty'; // fields expected in the response
+
+  next();
+};
+
 exports.getAllTours = async (req, res) => {
   try {
     const { page, sort, limit, fields, ...queryParams } = req.query; // req.query is query strings (query object)
