@@ -56,6 +56,10 @@ const tourSchema = new mongoose.Schema(
       select: false, // this will make this field not visible to client
     },
     startingDates: [Date],
+    secret: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     // each time the schema is converted to JSON and object we need virtuals as well
@@ -80,6 +84,24 @@ tourSchema.pre('save', function (next) {
 //   console.log('This is after saving ', doc);
 //   next();
 // });
+
+// mongoose query middleware that runs before find()
+// tourSchema.pre('find', function (next) {
+// regex to run this middleware in all queries that starts with find
+tourSchema.pre(/^find/, function (next) {
+  this.start = Date.now();
+  this.find({ secret: { $ne: true } });
+  next();
+});
+
+// mongoose query middleware that runs after queies satarting with find
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(
+    `Execution time of query is ${Date.now() - this.start} milliseconds`
+  );
+  // console.log(docs);
+  next();
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 
