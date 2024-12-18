@@ -27,9 +27,22 @@ app.use('/api/v1/users', userRouter);
 // This middleware only runs of the path doesnt match any routers
 // app.all() will take all get,post,put,delete methods
 app.all('*', (req, res, next) => {
-  res.status(404).json({
-    status: 'FAIL',
-    message: `Can not find ${req.originalUrl}`,
+  const err = new Error(`Can not find ${req.originalUrl}`);
+  err.status = 'FAIL';
+  err.statusCode = 404;
+
+  // passing any argument to the next() function will automatically hit the error handling middleware
+  next(err);
+});
+
+// When there are 4 arguments in a middleware express will automatically know that is a error handling middleware
+app.use((err, req, res, next) => {
+  (err.statusCode = err.statusCode || 500),
+    (err.status = err.status || 'ERROR');
+
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
   });
 });
 
