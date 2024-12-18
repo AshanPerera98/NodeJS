@@ -24,4 +24,13 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+// This middleware only runs of the path doesnt match any routers
+// app.all() will take all get,post,put,delete methods
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'FAIL',
+    message: `Can not find ${req.originalUrl}`,
+  });
+});
+
 module.exports = app;
