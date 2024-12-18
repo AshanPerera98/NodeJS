@@ -16,6 +16,13 @@ const handleDuplicateError = (err) => {
   return new AppError(message, 400);
 };
 
+// refactor the validation error for client
+const handleValidationError = (err) => {
+  const errors = Object.values(err.errors).map((el) => el.message);
+  let message = `Invalid input data. ${errors.join('. ')}`;
+  return new AppError(message, 400);
+};
+
 const devError = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -58,6 +65,8 @@ module.exports = (err, req, res, next) => {
     if (error.name === 'CastError') error = handleCastError(error);
     // checking if the error is a duplicate error and handle it
     if (error.code === 11000) error = handleDuplicateError(error);
+    // checking if the error is a validation error and handle it
+    if (error.name === 'ValidationError') error = handleValidationError(error);
     prodError(error, res);
   }
 };
