@@ -6,6 +6,16 @@ const handleCastError = (err) => {
   return new AppError(message, 400);
 };
 
+// refactor the duplicate error for client
+const handleDuplicateError = (err) => {
+  let message = 'Duplicate values in following:';
+
+  for (const [key, value] of Object.entries(err.keyValue)) {
+    message = `${message} | '${value}' at '${key}'`;
+  }
+  return new AppError(message, 400);
+};
+
 const devError = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -46,6 +56,8 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
     // checking if the error is a casting error and handle it
     if (error.name === 'CastError') error = handleCastError(error);
+    // checking if the error is a duplicate error and handle it
+    if (error.code === 11000) error = handleDuplicateError(error);
     prodError(error, res);
   }
 };
