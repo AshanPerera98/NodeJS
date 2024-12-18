@@ -1,6 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError');
+const ErrorController = require('./controllers/errorController');
+
 const tourRouter = require('./routes/tourRouts');
 const userRouter = require('./routes/userRouts');
 
@@ -27,23 +30,11 @@ app.use('/api/v1/users', userRouter);
 // This middleware only runs of the path doesnt match any routers
 // app.all() will take all get,post,put,delete methods
 app.all('*', (req, res, next) => {
-  const err = new Error(`Can not find ${req.originalUrl}`);
-  err.status = 'FAIL';
-  err.statusCode = 404;
-
   // passing any argument to the next() function will automatically hit the error handling middleware
-  next(err);
+  next(new AppError(`Can not find ${req.originalUrl}`, 404));
 });
 
 // When there are 4 arguments in a middleware express will automatically know that is a error handling middleware
-app.use((err, req, res, next) => {
-  (err.statusCode = err.statusCode || 500),
-    (err.status = err.status || 'ERROR');
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(ErrorController);
 
 module.exports = app;
