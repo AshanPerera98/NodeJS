@@ -1,3 +1,11 @@
+const AppError = require('./../utils/appError');
+
+// refactor the casting error for client
+const handleCastError = (err) => {
+  const message = `Invalid ${err.path}: ${err.value}`;
+  return new AppError(message, 400);
+};
+
 const devError = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -35,6 +43,9 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     devError(err, res);
   } else {
-    prodError(err, res);
+    let error = { ...err };
+    // checking if the error is a casting error and handle it
+    if (error.name === 'CastError') error = handleCastError(error);
+    prodError(error, res);
   }
 };
