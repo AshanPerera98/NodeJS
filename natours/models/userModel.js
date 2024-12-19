@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = mongoose.Schema({
   name: {
@@ -22,8 +23,27 @@ const userSchema = mongoose.Schema({
   confirmPassword: {
     type: String,
     required: [true, 'Confirm password cannot be null'],
-    minlength: [8, 'Confirm password must have atleast 8 characters'],
+    validate: {
+      //   validator function to check the confirmPassword is equal to password
+      //   This only works on CREATE and SAVE
+      validator: function (pass) {
+        return pass === this.password;
+      },
+      message: 'Passwords does not match!',
+    },
   },
+});
+
+// Document middleware to do the password encryprtion
+userSchema.pre('save', async function (next) {
+  // if password hasnt changed in the document exit the function
+  if (!this.isModified('password')) return next();
+
+  //   encrypting the password using hash
+  this.password = await bcrypt.hash(this.password, 12);
+
+  //   removing confirmPassword field from saving to DB
+  this.confirmPassword = undefined;
 });
 
 const User = mongoose.model('User', userSchema);
