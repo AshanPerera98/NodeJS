@@ -19,6 +19,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: [true, 'Password cannot be null'],
     minlength: [8, 'Password must have atleast 8 characters'],
+    select: false,
   },
   confirmPassword: {
     type: String,
@@ -45,6 +46,14 @@ userSchema.pre('save', async function (next) {
   //   removing confirmPassword field from saving to DB
   this.confirmPassword = undefined;
 });
+
+// export password checking
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
