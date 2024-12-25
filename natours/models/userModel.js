@@ -33,6 +33,7 @@ const userSchema = mongoose.Schema({
       message: 'Passwords does not match!',
     },
   },
+  passwordChangedAt: Date,
 });
 
 // Document middleware to do the password encryprtion
@@ -47,12 +48,23 @@ userSchema.pre('save', async function (next) {
   this.confirmPassword = undefined;
 });
 
-// export password checking
+// export instance method password checking
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+// export instance method password change checking
+userSchema.methods.passwordChanged = async function (JWTTimestamp) {
+  // In instance methods "this" keyword always point to the current document
+  if (this.passwordChangedAt) {
+    const changedTimestamp = Number(this.passwordChangedAt.getTime() / 1000); // converting the mongo db time to compare
+
+    return JWTTimestamp < changedTimestamp;
+  }
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

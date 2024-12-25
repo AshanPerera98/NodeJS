@@ -1,3 +1,4 @@
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
@@ -51,4 +52,43 @@ exports.login = catchAsync(async (req, res, next) => {
     status: 'SUCCESS',
     token,
   });
+});
+
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+
+  // 1) Checking for the token
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return next(new AppError('User is not logged in', 401));
+  }
+
+  // 2) Verify the token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET); // promisify will make jwt.verify return a promise rather than the callback
+  console.log(decoded);
+
+  // 3) Check if the user still exists
+  const user = await User.findById(decoded.id);
+  if (!user) {
+    return next(
+      new AppError('User who own this token doesnt exist anymore', 401)
+    );
+  }
+
+  // 4) Check if the password has changed after the tocken was issued
+  // "iat" means issued at
+  if (User.passwordChanged(decoded.iat)) {
+    return next(new AppError('User has changed the password recently', 401));
+  }
+
+  // Setting the authorized user as the user
+  req.user = user;
+
+  next();
 });

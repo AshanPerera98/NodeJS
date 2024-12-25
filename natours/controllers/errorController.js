@@ -23,6 +23,12 @@ const handleValidationError = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJWTError = (err) =>
+  new AppError('Validation failed unothorized user', 401);
+
+const handleJWTExpireError = (err) =>
+  new AppError('Token expired please login again', 401);
+
 const devError = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -67,6 +73,10 @@ module.exports = (err, req, res, next) => {
     if (error.code === 11000) error = handleDuplicateError(error);
     // checking if the error is a validation error and handle it
     if (error.name === 'ValidationError') error = handleValidationError(error);
+    // checking if the error is a JWT error and handle it
+    if (error.name === 'JsonWebTokenError') error = handleJWTError(error);
+    // checking if the error is a JWT expiration error and handle it
+    if (error.name === 'JsonWebTokenError') error = handleJWTExpireError(error);
     prodError(error, res);
   }
 };
