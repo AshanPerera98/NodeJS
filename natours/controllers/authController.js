@@ -15,6 +15,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const user = await User.create({
     name: req.body.name,
     email: req.body.email,
+    role: req.body.role,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
   });
@@ -83,7 +84,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 4) Check if the password has changed after the tocken was issued
   // "iat" means issued at
-  if (User.passwordChanged(decoded.iat)) {
+  if (await user.passwordChanged(decoded.iat)) {
     return next(new AppError('User has changed the password recently', 401));
   }
 
@@ -92,3 +93,15 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+// this "allow" function will return the async middleware immediately
+exports.allow = (...roles) =>
+  catchAsync(async (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('Do not have permission to perform this action', 403)
+      );
+    }
+
+    next();
+  });
