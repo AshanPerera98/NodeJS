@@ -56,6 +56,15 @@ userSchema.pre('save', async function (next) {
   this.confirmPassword = undefined;
 });
 
+// Document middleware to update the "passwordChangedAt" property when there is a change to password
+userSchema.pre('save', async function (next) {
+  // bypass the update if passsword has not changed or if the document is a new doc
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000; // -1000ms will give a 1 second window to correct the db update time with the JWT token creation time
+  next();
+});
+
 // export instance method password checking
 userSchema.methods.correctPassword = async function (
   candidatePassword,
@@ -86,7 +95,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .digest('hex');
 
   // setting password reset window to 10 mins
-  this.passwordResetExpire = Date.now() + 10 * 60 * 100;
+  this.passwordResetExpire = Date.now() + 10 * 60 * 1000;
 
   // returning the reset token
   return resetToken;
