@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const AppError = require('./utils/appError');
 const ErrorController = require('./controllers/errorController');
@@ -13,6 +14,17 @@ const app = express();
 app.use(express.json()); // middleware to add the data from the request body to req in method.
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev')); // third party middleware for logging only in dev mode
 app.use(express.static(`${__dirname}/public`)); // serve static files
+
+// creating reate limiter
+const limiter = rateLimit({
+  // only 100 request per minute allowed from single IP address
+  max: 100, // maximum number of requests
+  windowMs: 60 * 1000, // time limit in ms
+  message: 'Maximum request limit exeeded',
+});
+
+// setting rate limiter to "/api" route
+app.use('/api', limiter);
 
 // app.use((req, res, next) => {
 //   console.log('This is a middle ware running');
