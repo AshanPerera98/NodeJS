@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const { type } = require('os');
 
 const userSchema = mongoose.Schema({
   name: {
@@ -43,6 +44,11 @@ const userSchema = mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpire: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 // Document middleware to do the password encryprtion
@@ -68,6 +74,13 @@ userSchema.pre('save', async function (next) {
   }
 
   this.passwordChangedAt = Date.now() - 1000; // -1000ms will give a 1 second window to correct the db update time with the JWT token creation time
+  next();
+});
+
+// Query middleware to filter inactive users out
+userSchema.pre(/^find/, async function (next) {
+  // points to the current query
+  this.find({ active: { $ne: false } });
   next();
 });
 
