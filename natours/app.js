@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const AppError = require('./utils/appError');
 const ErrorController = require('./controllers/errorController');
@@ -24,6 +25,21 @@ app.use(mongoSanitize());
 
 // sanitize against Cross-site scripting
 app.use(xss());
+
+// protect against parameter polution
+app.use(
+  hpp({
+    // whitelisted query params can have duplicates
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
 
 // third party middleware for logging only in dev mode
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
