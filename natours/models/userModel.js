@@ -47,19 +47,24 @@ const userSchema = mongoose.Schema({
 // Document middleware to do the password encryprtion
 userSchema.pre('save', async function (next) {
   // if password hasnt changed in the document exit the function
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) {
+    return next();
+  }
 
   //   encrypting the password using hash
   this.password = await bcrypt.hash(this.password, 12);
 
   //   removing confirmPassword field from saving to DB
   this.confirmPassword = undefined;
+  next();
 });
 
 // Document middleware to update the "passwordChangedAt" property when there is a change to password
 userSchema.pre('save', async function (next) {
   // bypass the update if passsword has not changed or if the document is a new doc
-  if (!this.isModified('password') || this.isNew) return next();
+  if (!this.isModified('password') || this.isNew) {
+    return next();
+  }
 
   this.passwordChangedAt = Date.now() - 1000; // -1000ms will give a 1 second window to correct the db update time with the JWT token creation time
   next();
