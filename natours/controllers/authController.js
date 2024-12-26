@@ -16,6 +16,16 @@ const sendJWTToken = (user, statusCode, res) => {
   // creating the JWT token
   const token = generateToken(user._id);
 
+  // creating a cookie containing tthe jwt
+  res.cookie('jwt', token, {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_TTL * 60 * 1000),
+    secure: process.env.NODE_ENV === 'production' ? true : false, // make the cookie encrypted when using https
+    httpOnly: true, // make the cookie non editable in the browser
+  });
+
+  // remove the password from the response when creating a user
+  user.password = undefined;
+
   res.status(statusCode).json({
     status: 'SUCCESS',
     token,
