@@ -2,6 +2,8 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const AppError = require('./utils/appError');
 const ErrorController = require('./controllers/errorController');
@@ -14,9 +16,20 @@ const app = express();
 // MIDDLE WARE
 app.use(helmet()); // set secutiry headers for http
 
-app.use(express.json({ limit: '10kb' })); // middleware to add the data from the request body to req in method. and limit the size to 10kb
-if (process.env.NODE_ENV === 'development') app.use(morgan('dev')); // third party middleware for logging only in dev mode
-app.use(express.static(`${__dirname}/public`)); // serve static files
+// Body parser: middleware to add the data from the request body to req in method. and limit the size to 10kb
+app.use(express.json({ limit: '10kb' }));
+
+// sanitize against NoSQL script injection
+app.use(mongoSanitize());
+
+// sanitize against Cross-site scripting
+app.use(xss());
+
+// third party middleware for logging only in dev mode
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
+
+// serve static files
+app.use(express.static(`${__dirname}/public`));
 
 // creating reate limiter
 const limiter = rateLimit({
