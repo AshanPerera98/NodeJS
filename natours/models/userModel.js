@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Username cannot be null'],
+    minlength: [8, 'Username must have atleast 8 characters'],
   },
   email: {
     type: String,
