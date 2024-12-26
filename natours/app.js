@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const AppError = require('./utils/appError');
 const ErrorController = require('./controllers/errorController');
@@ -11,7 +12,9 @@ const userRouter = require('./routes/userRouts');
 const app = express();
 
 // MIDDLE WARE
-app.use(express.json()); // middleware to add the data from the request body to req in method.
+app.use(helmet()); // set secutiry headers for http
+
+app.use(express.json({ limit: '10kb' })); // middleware to add the data from the request body to req in method. and limit the size to 10kb
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev')); // third party middleware for logging only in dev mode
 app.use(express.static(`${__dirname}/public`)); // serve static files
 
