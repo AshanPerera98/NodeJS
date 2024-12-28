@@ -76,6 +76,30 @@ const tourSchema = new mongoose.Schema(
       select: false, // this will make this field not visible to client
     },
     startingDates: [Date],
+    startLocation: {
+      //GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
     secret: {
       type: Boolean,
       default: false,
