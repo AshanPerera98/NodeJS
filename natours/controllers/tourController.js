@@ -14,38 +14,44 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  // Executing builder class to create the query object
-  const builder = new APIBuilder(Tour.find(), req.query)
-    .filtering()
-    .sorting()
-    .limiting()
-    .paginating();
-  const tours = await builder.query;
+// exports.getAllTours = catchAsync(async (req, res, next) => {
+//   // Executing builder class to create the query object
+//   const builder = new APIBuilder(Tour.find(), req.query)
+//     .filtering()
+//     .sorting()
+//     .limiting()
+//     .paginating();
+//   const tours = await builder.query;
 
-  res.status(200).json({
-    status: 'SUCCESS',
-    requestTime: req.requestTime,
-    resutls: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
+//   res.status(200).json({
+//     status: 'SUCCESS',
+//     requestTime: req.requestTime,
+//     resutls: tours.length,
+//     data: {
+//       tours,
+//     },
+//   });
+// });
 
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews'); // populate() will take the references from vertual populate
+// using factory to read all the documnet
+exports.getAllTours = factory.readAllDocumnets(Tour);
 
-  if (!tour)
-    return next(new AppError(`No tour found with id: ${req.params.id}`, 404));
+// exports.getTour = catchAsync(async (req, res, next) => {
+//   const tour = await Tour.findById(req.params.id).populate('reviews'); // populate() will take the references from vertual populate
 
-  res.status(200).json({
-    status: 'SUCCESS',
-    data: {
-      tour,
-    },
-  });
-});
+//   if (!tour)
+//     return next(new AppError(`No tour found with id: ${req.params.id}`, 404));
+
+//   res.status(200).json({
+//     status: 'SUCCESS',
+//     data: {
+//       tour,
+//     },
+//   });
+// });
+
+// using factory to read the documnet
+exports.getTour = factory.readDocumnet(Tour, { path: 'reviews' });
 
 // exports.createTour = catchAsync(async (req, res, next) => {
 //   const tour = await Tour.create(req.body);
