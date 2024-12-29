@@ -14,22 +14,6 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-// exports.getAllUsers = catchAsync(async (req, res, next) => {
-//   const users = await User.find();
-
-//   res.status(200).json({
-//     status: 'SUCCESS',
-//     requestTime: req.requestTime,
-//     resutls: users.length,
-//     data: {
-//       users,
-//     },
-//   });
-// });
-
-// using factory to read all the documnet
-exports.getAllUsers = factory.readAllDocumnets(User);
-
 exports.updateCurrentUser = catchAsync(async (req, res, next) => {
   // 1) Send an error if the user try to update the password using this route
   if (req.body.password || req.body.confirmPassword) {
@@ -64,16 +48,6 @@ exports.deleteCurrentUser = catchAsync(async (req, res, next) => {
   });
 });
 
-// exports.getUser = (req, res) => {
-//   res.status(500).json({
-//     status: 'ERROR',
-//     message: 'This route is not yet implemented',
-//   });
-// };
-
-// using factory to read the documnet
-exports.getUser = factory.readDocumnet(User);
-
 exports.createUser = (req, res) => {
   res.status(500).json({
     status: 'ERROR',
@@ -81,8 +55,7 @@ exports.createUser = (req, res) => {
   });
 };
 
-// using factory to update the documnet
+exports.getAllUsers = factory.readAllDocumnets(User);
+exports.getUser = factory.readDocumnet(User);
 exports.updateUser = factory.updateDocument(User);
-
-// using factory to delete the documnet
 exports.deleteUser = factory.deleteDocument(User);

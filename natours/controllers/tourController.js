@@ -1,7 +1,5 @@
 const Tour = require('./../models/tourModel');
-const APIBuilder = require('./../utils/apiBuilder');
 const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
 
 const factory = require('./handlerFactory');
 
@@ -14,94 +12,10 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-// exports.getAllTours = catchAsync(async (req, res, next) => {
-//   // Executing builder class to create the query object
-//   const builder = new APIBuilder(Tour.find(), req.query)
-//     .filtering()
-//     .sorting()
-//     .limiting()
-//     .paginating();
-//   const tours = await builder.query;
-
-//   res.status(200).json({
-//     status: 'SUCCESS',
-//     requestTime: req.requestTime,
-//     resutls: tours.length,
-//     data: {
-//       tours,
-//     },
-//   });
-// });
-
-// using factory to read all the documnet
 exports.getAllTours = factory.readAllDocumnets(Tour);
-
-// exports.getTour = catchAsync(async (req, res, next) => {
-//   const tour = await Tour.findById(req.params.id).populate('reviews'); // populate() will take the references from vertual populate
-
-//   if (!tour)
-//     return next(new AppError(`No tour found with id: ${req.params.id}`, 404));
-
-//   res.status(200).json({
-//     status: 'SUCCESS',
-//     data: {
-//       tour,
-//     },
-//   });
-// });
-
-// using factory to read the documnet
 exports.getTour = factory.readDocumnet(Tour, { path: 'reviews' });
-
-// exports.createTour = catchAsync(async (req, res, next) => {
-//   const tour = await Tour.create(req.body);
-
-//   res.status(201).json({
-//     status: 'SUCCESS',
-//     data: {
-//       tour,
-//     },
-//   });
-// });
-
-// using factory to create the documnet
 exports.createTour = factory.createDocument(Tour);
-
-// exports.updateTour = catchAsync(async (req, res, next) => {
-//   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-//     new: true,
-//     runValidators: true,
-//   });
-
-//   if (!tour)
-//     return next(new AppError(`No tour found with id: ${req.params.id}`, 404));
-
-//   res.status(200).json({
-//     status: 'SUCCESS',
-//     data: {
-//       tour,
-//     },
-//   });
-// });
-
-// using factory to update the documnet
 exports.updateTour = factory.updateDocument(Tour);
-
-// exports.deleteTour = catchAsync(async (req, res, next) => {
-//   const tour = await Tour.findByIdAndDelete(req.params.id);
-
-//   if (!tour)
-//     return next(new AppError(`No tour found with id: ${req.params.id}`, 404));
-
-//   res.status(204).json({
-//     status: 'SUCCESS',
-//     data: {
-//       tour: null,
-//     },
-//   });
-// });
-
-// using factory to delete the documnet
 exports.deleteTour = factory.deleteDocument(Tour);
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
