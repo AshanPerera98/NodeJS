@@ -14,6 +14,12 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
+// middleware to set the user id to logged in user id
+exports.getCurrentUser = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 exports.updateCurrentUser = catchAsync(async (req, res, next) => {
   // 1) Send an error if the user try to update the password using this route
   if (req.body.password || req.body.confirmPassword) {
