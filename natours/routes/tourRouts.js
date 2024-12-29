@@ -2,7 +2,12 @@ const express = require('express');
 const tourController = require('./../controllers/tourController');
 const authController = require('./../controllers/authController');
 
+const reviewRouter = require('./../routes/reviewRouts');
+
 const router = express.Router();
+
+// Router for creating reviews for tour (plugin in the review router as a middleware)
+router.use('/:tourId/reviews', reviewRouter);
 
 // Alias : special route to get top 5 tours
 router
