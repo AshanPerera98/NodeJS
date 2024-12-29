@@ -125,6 +125,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// virtual  populate: parent referencing
+tourSchema.virtual('reviews', {
+  ref: 'Review', // collection of the child
+  foreignField: 'tour', // field that contains parent id
+  localField: '_id', // parents id field
+});
+
 // mongoose document middleware that runs before .save() and create()
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
