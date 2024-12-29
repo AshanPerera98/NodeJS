@@ -11,6 +11,7 @@ const ErrorController = require('./controllers/errorController');
 
 const tourRouter = require('./routes/tourRouts');
 const userRouter = require('./routes/userRouts');
+const reviewRouter = require('./routes/reviewRouts');
 
 const app = express();
 
@@ -70,6 +71,7 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // This middleware only runs of the path doesnt match any routers
 // app.all() will take all get,post,put,delete methods
