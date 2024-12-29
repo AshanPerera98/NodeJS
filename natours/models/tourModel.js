@@ -153,6 +153,17 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
+// query middleware to populate the guides feild in all tour queries
+tourSchema.pre(/^find/, function (next) {
+  // populate() will take the IDs from the field with refference and automatically fill it with data
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
+
+  next();
+});
+
 // mongoose query middleware that runs after queies satarting with find
 tourSchema.post(/^find/, function (docs, next) {
   console.log(
