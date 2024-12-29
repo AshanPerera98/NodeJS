@@ -114,7 +114,7 @@ const tourSchema = new mongoose.Schema(
     ],
   },
   {
-    // each time the schema is converted to JSON and object we need virtuals as well
+    // each time the schema is converted to JSON and object we need virtuals (fields that are not in the DB but calculated using other values) as well
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
