@@ -3,6 +3,8 @@ const APIBuilder = require('./../utils/apiBuilder');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 
+const factory = require('./handlerFactory');
+
 // Alias middleware to set the expected query to the requestF
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5'; // set result timit to 5
@@ -73,19 +75,22 @@ exports.updateTour = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
+// exports.deleteTour = catchAsync(async (req, res, next) => {
+//   const tour = await Tour.findByIdAndDelete(req.params.id);
 
-  if (!tour)
-    return next(new AppError(`No tour found with id: ${req.params.id}`, 404));
+//   if (!tour)
+//     return next(new AppError(`No tour found with id: ${req.params.id}`, 404));
 
-  res.status(204).json({
-    status: 'SUCCESS',
-    data: {
-      tour: null,
-    },
-  });
-});
+//   res.status(204).json({
+//     status: 'SUCCESS',
+//     data: {
+//       tour: null,
+//     },
+//   });
+// });
+
+// using factory to delete the documnet
+exports.deleteTour = factory.deleteDocument(Tour);
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([

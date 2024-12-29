@@ -2,6 +2,8 @@ const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 
+const factory = require('./handlerFactory');
+
 // this function will filter the object for wanted fields
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -80,9 +82,5 @@ exports.updateUser = (req, res) => {
   });
 };
 
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'ERROR',
-    message: 'This route is not yet implemented',
-  });
-};
+// using factory to delete the documnet
+exports.deleteUser = factory.deleteDocument(User);
