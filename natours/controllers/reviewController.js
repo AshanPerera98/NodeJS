@@ -19,20 +19,18 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createReview = catchAsync(async (req, res, next) => {
-  // adding tour id from path params and user id from JWT token when used in nested route
+// adding tour id from path params and user id from JWT token when used in nested route
+exports.preProcessCreateReview = (req, res, next) => {
   if (!req.body.tour) req.body.tour = req.params.tourId;
   if (!req.body.user) req.body.user = req.user.id;
+  next();
+};
 
-  const review = await Review.create(req.body);
+// using factory to create the documnet
+exports.createReview = factory.createDocument(Review);
 
-  res.status(201).json({
-    status: 'SUCCESS',
-    data: {
-      review,
-    },
-  });
-});
+// using factory to update the documnet
+exports.updateReview = factory.updateDocument(Review);
 
 // using factory to delete the documnet
 exports.deleteReview = factory.deleteDocument(Review);

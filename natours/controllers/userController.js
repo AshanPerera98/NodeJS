@@ -75,12 +75,8 @@ exports.createUser = (req, res) => {
   });
 };
 
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'ERROR',
-    message: 'This route is not yet implemented',
-  });
-};
+// using factory to update the documnet
+exports.updateUser = factory.updateDocument(User);
 
 // using factory to delete the documnet
 exports.deleteUser = factory.deleteDocument(User);
