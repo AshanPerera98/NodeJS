@@ -10,29 +10,22 @@ router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
 
-router.patch(
-  '/updatePassword',
-  authController.protect,
-  authController.updatePassword
-);
+// this will run the protected route as a middleware so every route after this is protected
+router.use(authController.protect);
+
+router.patch('/updatePassword', authController.updatePassword);
 
 router.get(
   '/getCurrentUser',
-  authController.protect,
   userController.getCurrentUser,
   userController.getUser
 );
 
-router.patch(
-  '/updateCurrentUser',
-  authController.protect,
-  userController.updateCurrentUser
-);
-router.delete(
-  '/deleteCurrentUser',
-  authController.protect,
-  userController.deleteCurrentUser
-);
+router.patch('/updateCurrentUser', userController.updateCurrentUser);
+router.delete('/deleteCurrentUser', userController.deleteCurrentUser);
+
+// this will as a middleware so only admins can access below routes
+router.use(authController.allow('admin'));
 
 router
   .route('/')
