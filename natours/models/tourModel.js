@@ -39,6 +39,7 @@ const tourSchema = new mongoose.Schema(
       default: 0,
       min: [1, 'The lowest rating is 1'],
       max: [5, 'The highest rating is 5'],
+      set: (val) => Math.round(val * 10) / 10, // round up the ratings to one decimal point
     },
     ratingsQuantity: {
       type: Number,

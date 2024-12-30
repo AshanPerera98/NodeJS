@@ -35,6 +35,9 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+// use unique index to prevent one user adding multiple reviews to the same tour
+reviewSchema.index({ user: 1, tour: 1 }, { unique: true });
+
 // query middleware to populate the tour and useer
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
