@@ -120,6 +120,12 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// this will put a index in price in mongoDb so that when querying price it will use index that will reduce query time
+tourSchema.index({ price: 1, ratingsAverage: -1 }); // this is a compund index that can be used to query more than one feild at a time
+tourSchema.index({ price: 1 });
+tourSchema.index({ ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 // virtual property is a derived property from the actual data
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
