@@ -28,6 +28,9 @@ router
   .route('/tours-within/:distance/center/:center/unit/:unit')
   .get(tourController.getToursWithin);
 
+// route to get distances for all tours
+router.route('/distances/:location/unit/:unit').get(tourController.getDistance);
+
 router
   .route('/')
   .get(tourController.getAllTours)

@@ -190,10 +190,10 @@ tourSchema.post(/^find/, function (docs, next) {
 });
 
 // mongoose aggregation middleware that runs before aggregation execute
-tourSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secret: { $ne: true } } }); // adding a new aggregation at the begining of the aggregation pipeline
-  next();
-});
+// tourSchema.pre('aggregate', function (next) {
+//   this.pipeline().unshift({ $match: { secret: { $ne: true } } }); // adding a new aggregation at the begining of the aggregation pipeline
+//   next();
+// });
 
 const Tour = mongoose.model('Tour', tourSchema);
 

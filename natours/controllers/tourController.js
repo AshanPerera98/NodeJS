@@ -136,3 +136,48 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getDistance = catchAsync(async (req, res, next) => {
+  const { location, unit } = req.params;
+  const [lat, lng] = location.split(',');
+
+  // unit conversion
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+  if (!lat || !lng) {
+    return next(
+      new AppError(
+        'Latitude ang longitude is not available or not in the correct format',
+        400
+      )
+    );
+  }
+
+  const distances = await Tour.aggregate([
+    {
+      // this will automatically take the indexed geolocation feild from the DB to calculate distances
+      $geoNear: {
+        // starting point of the calculation
+        near: {
+          type: 'Point',
+          coordinates: [Number(lng), Number(lat)],
+        },
+        distanceField: 'distance', // field name of the calculated distances
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'SUCCESS',
+    data: {
+      data: distances,
+    },
+  });
+});
