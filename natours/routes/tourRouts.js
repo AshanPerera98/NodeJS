@@ -23,6 +23,11 @@ router
     tourController.getMonthlyPlan
   );
 
+// route to get aall thetours within a given area
+router
+  .route('/tours-within/:distance/center/:center/unit/:unit')
+  .get(tourController.getToursWithin);
+
 router
   .route('/')
   .get(tourController.getAllTours)

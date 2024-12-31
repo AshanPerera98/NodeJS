@@ -126,6 +126,8 @@ tourSchema.index({ price: 1, ratingsAverage: -1 }); // this is a compund index t
 tourSchema.index({ price: 1 });
 tourSchema.index({ ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
+// special index for geo location data
+tourSchema.index({ startLocation: '2dsphere' });
 
 // virtual property is a derived property from the actual data
 tourSchema.virtual('durationWeeks').get(function () {

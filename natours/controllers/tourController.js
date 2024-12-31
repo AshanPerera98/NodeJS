@@ -1,5 +1,6 @@
 const Tour = require('./../models/tourModel');
 const catchAsync = require('./../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 const factory = require('./handlerFactory');
 
@@ -100,6 +101,38 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     status: 'SUCCESS',
     data: {
       plan,
+    },
+  });
+});
+
+// controller to get all the tours within a given area
+// /tours-within/400/center/34.11,-118.11/unit/mi
+exports.getToursWithin = catchAsync(async (req, res, next) => {
+  const { distance, center, unit } = req.params;
+  const [lat, lng] = center.split(',');
+
+  // distance has to be devided by the radius of the earth to convert to mongoDB unit
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+  if (!lat || !lng) {
+    return next(
+      new AppError(
+        'Latitude ang longitude is not available or not in the correct format',
+        400
+      )
+    );
+  }
+
+  // query for all the points inside the sphere
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  res.status(200).json({
+    status: 'SUCCESS',
+    results: tours.length,
+    data: {
+      data: tours,
     },
   });
 });
