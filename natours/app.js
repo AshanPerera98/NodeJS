@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -14,6 +15,14 @@ const userRouter = require('./routes/userRouts');
 const reviewRouter = require('./routes/reviewRouts');
 
 const app = express();
+
+// initializing template engine for express (pug)
+app.set('view engine', 'pug');
+// setting views directory
+app.set('views', path.join(__dirname, 'views'));
+
+// serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // MIDDLE WARE
 app.use(helmet()); // set secutiry headers for http
@@ -45,9 +54,6 @@ app.use(
 // third party middleware for logging only in dev mode
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
-// serve static files
-app.use(express.static(`${__dirname}/public`));
-
 // creating reate limiter
 const limiter = rateLimit({
   // only 100 request per minute allowed from single IP address
@@ -67,6 +73,13 @@ app.use('/api', limiter);
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
+});
+
+// route for initial pug template
+app.get('/', (req, res) => {
+  res
+    .status(200)
+    .render('base', { tour: 'Sample Tour', description: 'sample description' }); // second object is used to pass variables into pug template (locals)
 });
 
 app.use('/api/v1/tours', tourRouter);

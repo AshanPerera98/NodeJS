@@ -1,0 +1,15 @@
+doctype html
+html 
+    head 
+        title Natours | #{tour}
+        link(rel='stylesheet' href='css/style.css')
+        link(rel='shortcut icon' type='image/png' href='img/favicon.png')
+
+    body 
+        // "=" can be used ti assign variables (also this comment wil be visible in html)
+        h1= tour 
+        //- javascript code can be written in pug template (this comment wil be visible in html)
+        p= description.toUpperCase()
+
+        - const x = 5
+        h2= 2 * x   
