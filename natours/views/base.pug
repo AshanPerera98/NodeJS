@@ -1,15 +1,42 @@
+//- doctype html
+//- html 
+//-     head 
+//-         title Natours | #{tour}
+//-         link(rel='stylesheet' href='css/style.css')
+//-         link(rel='shortcut icon' type='image/png' href='img/favicon.png')
+
+//-     body 
+//-         // "=" can be used ti assign variables (also this comment wil be visible in html)
+//-         h1= tour 
+//-         //- javascript code can be written in pug template (this comment wil be visible in html)
+//-         p= description.toUpperCase()
+
+//-         - const x = 5
+//-         h2= 2 * x   
+
 doctype html
-html 
-    head 
-        title Natours | #{tour}
-        link(rel='stylesheet' href='css/style.css')
-        link(rel='shortcut icon' type='image/png' href='img/favicon.png')
-
-    body 
-        // "=" can be used ti assign variables (also this comment wil be visible in html)
-        h1= tour 
-        //- javascript code can be written in pug template (this comment wil be visible in html)
-        p= description.toUpperCase()
-
-        - const x = 5
-        h2= 2 * x   
+html
+  head
+    block head
+      meta(charset='UTF-8')
+      meta(name='viewport' content='width=device-width, initial-scale=1.0')
+      link(rel='stylesheet' href='/css/style.css')
+      link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
+      link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lato:300,300i,700')
+      title Natours | #{title}
+  
+  body
+    // HEADER
+    include _header
+        
+    // CONTENT
+    block content
+      h1 This is a placeholder heading
+      
+    // FOOTER
+    include _footer
+    
+    //- script(src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js')
+    //- script(src='/js/mapbox.js')
+    //- script(src='/js/login.js')
+    script(src='/js/bundle.js')
