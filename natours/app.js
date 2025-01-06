@@ -82,6 +82,14 @@ app.get('/', (req, res) => {
     .render('base', { tour: 'Sample Tour', description: 'sample description' }); // second object is used to pass variables into pug template (locals)
 });
 
+app.get('/overview', (req, res) => {
+  res.status(200).render('overview', {});
+});
+
+app.get('/tour', (req, res) => {
+  res.status(200).render('tour', { title: 'All Tours' });
+});
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
