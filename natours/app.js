@@ -10,6 +10,7 @@ const hpp = require('hpp');
 const AppError = require('./utils/appError');
 const ErrorController = require('./controllers/errorController');
 
+const viewRouter = require('./routes/viewRouts');
 const tourRouter = require('./routes/tourRouts');
 const userRouter = require('./routes/userRouts');
 const reviewRouter = require('./routes/reviewRouts');
@@ -75,21 +76,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// route for initial pug template
-app.get('/', (req, res) => {
-  res
-    .status(200)
-    .render('base', { tour: 'Sample Tour', description: 'sample description' }); // second object is used to pass variables into pug template (locals)
-});
-
-app.get('/overview', (req, res) => {
-  res.status(200).render('overview', {});
-});
-
-app.get('/tour', (req, res) => {
-  res.status(200).render('tour', { title: 'All Tours' });
-});
-
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
