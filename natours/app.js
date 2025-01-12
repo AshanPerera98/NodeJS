@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appError');
 const ErrorController = require('./controllers/errorController');
@@ -26,10 +27,23 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MIDDLE WARE
-app.use(helmet()); // set secutiry headers for http
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        'https://api.mapbox.com',
+        'https://cdnjs.cloudflare.com',
+      ],
+      // Other directives...
+    },
+  })
+); // set secutiry headers for http
 
 // Body parser: middleware to add the data from the request body to req in method. and limit the size to 10kb
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser()); // to get the cookies from incoming requests
 
 // sanitize against NoSQL script injection
 app.use(mongoSanitize());

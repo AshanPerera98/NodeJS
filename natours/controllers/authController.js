@@ -76,6 +76,9 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    // checking the token in cookies
+    token = req.cookies.jwt;
   }
 
   if (!token) {
@@ -103,6 +106,36 @@ exports.protect = catchAsync(async (req, res, next) => {
   // Setting the authorized user as the user
   req.user = user;
 
+  next();
+});
+
+// only for the page rendering there will be no errors in this middleware
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  // 1) Checking for the token
+  if (req.cookies.jwt) {
+    // 2) Verify the token
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    ); // promisify will make jwt.verify return a promise rather than the callback
+    console.log(decoded);
+
+    // 3) Check if the user still exists
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return next();
+    }
+
+    // 4) Check if the password has changed after the tocken was issued
+    // "iat" means issued at
+    if (await user.passwordChanged(decoded.iat)) {
+      return next();
+    }
+
+    // there is a logged in user
+    res.locals.user = user; // this will make a variable called 'user' that will be available for pug template
+    return next();
+  }
   next();
 });
 

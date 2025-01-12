@@ -4,6 +4,7 @@ const {
   getOverview,
   getLogin,
 } = require('./../controllers/viewController');
+const { isLoggedIn } = require('./../controllers/authController');
 
 const router = express.Router();
 
@@ -13,6 +14,9 @@ const router = express.Router();
 //     .status(200)
 //     .render('base', { tour: 'Sample Tour', description: 'sample description' }); // second object is used to pass variables into pug template (locals)
 // });
+
+// middleware to pass logged in user data to pug template
+router.use(isLoggedIn);
 
 router.get('/', getOverview);
 
