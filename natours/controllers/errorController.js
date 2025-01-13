@@ -29,42 +29,60 @@ const handleJWTError = (err) =>
 const handleJWTExpireError = (err) =>
   new AppError('Token expired please login again', 401);
 
-const devError = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack,
+const devError = (err, req, res) => {
+  // error handling for the API
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(err.statusCode).json({
+      status: err.status,
+      error: err,
+      message: err.message,
+      stack: err.stack,
+    });
+  }
+
+  // error handling for the website
+  return res.status(err.statusCode).render('error', {
+    title: 'Something went wrong',
+    msg: err.message,
   });
 };
 
-const prodError = (err, res) => {
-  // Operational: trusted known error where we want to sent client what is the error
-  if (err.isOperational) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
+const prodError = (err, req, res) => {
+  // error handling for the API
+  if (req.originalUrl.startsWith('/api')) {
+    // Operational: trusted known error where we want to sent client what is the error
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
 
-    // Programming or other unknown error where we dont want to send the details to client
-  } else {
-    // logging the details of the error
-    console.error('💥Unknown error occured!', err);
+      // Programming or other unknown error where we dont want to send the details to client
+    } else {
+      // logging the details of the error
+      console.error('💥Unknown error occured!', err);
 
-    // handling the error
-    res.status(500).json({
-      status: 'ERROR',
-      message: 'Something went wrong!',
-    });
+      // handling the error
+      return res.status(500).json({
+        status: 'ERROR',
+        message: 'Something went wrong!',
+      });
+    }
   }
+
+  // error handling for the website
+  return res.status(err.statusCode).render('error', {
+    title: 'Something went wrong',
+    msg: 'Please try again later',
+  });
 };
 
 module.exports = (err, req, res, next) => {
-  (err.statusCode = err.statusCode || 500),
-    (err.status = err.status || 'ERROR');
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'ERROR';
 
   if (process.env.NODE_ENV === 'development') {
-    devError(err, res);
+    devError(err, req, res);
   } else {
     let error = { ...err };
     // checking if the error is a casting error and handle it
@@ -77,6 +95,6 @@ module.exports = (err, req, res, next) => {
     if (error.name === 'JsonWebTokenError') error = handleJWTError(error);
     // checking if the error is a JWT expiration error and handle it
     if (error.name === 'JsonWebTokenError') error = handleJWTExpireError(error);
-    prodError(error, res);
+    prodError(error, req, res);
   }
 };
