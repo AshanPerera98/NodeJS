@@ -3,8 +3,9 @@ const {
   getTour,
   getOverview,
   getLogin,
+  getAccount,
 } = require('./../controllers/viewController');
-const { isLoggedIn } = require('./../controllers/authController');
+const { isLoggedIn, protect } = require('./../controllers/authController');
 
 const router = express.Router();
 
@@ -16,12 +17,14 @@ const router = express.Router();
 // });
 
 // middleware to pass logged in user data to pug template
-router.use(isLoggedIn);
+// router.use(isLoggedIn);
 
-router.get('/', getOverview);
+router.get('/', isLoggedIn, getOverview);
 
-router.get('/tour/:slug', getTour);
+router.get('/tour/:slug', isLoggedIn, getTour);
 
-router.get('/login', getLogin);
+router.get('/login', isLoggedIn, getLogin);
+
+router.get('/me', protect, getAccount);
 
 module.exports = router;

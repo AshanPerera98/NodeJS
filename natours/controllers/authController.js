@@ -114,6 +114,8 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // Setting the authorized user as the user
   req.user = user;
+  // this will make a variable called 'user' that will be available for pug template
+  res.locals.user = user;
 
   next();
 });
