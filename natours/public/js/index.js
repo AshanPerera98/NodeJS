@@ -1,9 +1,10 @@
-import { login } from './login';
+import { login, logout } from './login';
 import { displayMap } from './mapbox';
 
 // DOM elements
 const mapbox = document.getElementById('map');
 const form = document.querySelector('.form');
+const logOutBtn = document.querySelector('.nav__el--logout');
 
 if (mapbox) {
   const locations = JSON.parse(mapbox.dataset.locations);
@@ -18,3 +19,5 @@ if (form) {
     login(email, password);
   });
 }
+
+if (logOutBtn) logOutBtn.addEventListener('click', logout);

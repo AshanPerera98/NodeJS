@@ -67,6 +67,15 @@ exports.login = catchAsync(async (req, res, next) => {
   sendJWTToken(user, 200, res);
 });
 
+// setting a new cookie with no data that will expire sooner to logout the user
+exports.logout = catchAsync(async (req, res, next) => {
+  res.cookie('jwt', 'cookie deleted', {
+    expires: new Date(Date.now() + 5000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'SUCCESS' });
+});
+
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
 
@@ -110,34 +119,38 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 // only for the page rendering there will be no errors in this middleware
-exports.isLoggedIn = catchAsync(async (req, res, next) => {
-  // 1) Checking for the token
-  if (req.cookies.jwt) {
-    // 2) Verify the token
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    ); // promisify will make jwt.verify return a promise rather than the callback
-    console.log(decoded);
+exports.isLoggedIn = async (req, res, next) => {
+  try {
+    // 1) Checking for the token
+    if (req.cookies.jwt) {
+      // 2) Verify the token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      ); // promisify will make jwt.verify return a promise rather than the callback
+      console.log(decoded);
 
-    // 3) Check if the user still exists
-    const user = await User.findById(decoded.id);
-    if (!user) {
+      // 3) Check if the user still exists
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return next();
+      }
+
+      // 4) Check if the password has changed after the tocken was issued
+      // "iat" means issued at
+      if (await user.passwordChanged(decoded.iat)) {
+        return next();
+      }
+
+      // there is a logged in user
+      res.locals.user = user; // this will make a variable called 'user' that will be available for pug template
       return next();
     }
-
-    // 4) Check if the password has changed after the tocken was issued
-    // "iat" means issued at
-    if (await user.passwordChanged(decoded.iat)) {
-      return next();
-    }
-
-    // there is a logged in user
-    res.locals.user = user; // this will make a variable called 'user' that will be available for pug template
+  } catch (err) {
     return next();
   }
   next();
-});
+};
 
 // this "allow" function will return the async middleware immediately
 exports.allow = (...roles) =>
