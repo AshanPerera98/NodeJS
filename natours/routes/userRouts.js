@@ -22,7 +22,12 @@ router.get(
   userController.getUser
 );
 
-router.patch('/updateCurrentUser', userController.updateCurrentUser);
+router.patch(
+  '/updateCurrentUser',
+  userController.uploadPhoto, // uploading a single image
+  userController.resizePhoto, // resizing the uploaded photo
+  userController.updateCurrentUser
+);
 router.delete('/deleteCurrentUser', userController.deleteCurrentUser);
 
 // this will as a middleware so only admins can access below routes

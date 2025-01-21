@@ -1,3 +1,5 @@
+const multer = require('multer');
+const sharp = require('sharp');
 const Tour = require('./../models/tourModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -18,6 +20,61 @@ exports.getTour = factory.readDocumnet(Tour, { path: 'reviews' });
 exports.createTour = factory.createDocument(Tour);
 exports.updateTour = factory.updateDocument(Tour);
 exports.deleteTour = factory.deleteDocument(Tour);
+
+// configuring the multer memory storage (buffer)
+const multerStorage = multer.memoryStorage();
+
+// filter to check if the uploaded file is an image in multer
+const multerFilter = (req, file, callback) => {
+  if (file.mimetype.startsWith('image')) {
+    callback(null, true);
+  } else {
+    callback(new AppError('Uploded file type is not supported!', 400), false);
+  }
+};
+
+// multer config for uploading images
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+// upload multiple images using multer
+exports.uploadImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 3 },
+]);
+
+exports.resizeImages = catchAsync(async (req, res, next) => {
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  // resizing the cover image
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`; // update the document cover in db with new file
+  await sharp(req.files.imageCover[0].buffer) // provide the image from the memory
+    .resize(2000, 1333) // resolution
+    .toFormat('jpeg') // file format
+    .jpeg({ quality: 90 }) // quality
+    .toFile(`public/img/tours/${req.body.imageCover}`); // location and file name to save
+
+  // processing images array
+  req.body.images = [];
+
+  await Promise.all(
+    req.files.images.map(async (file, index) => {
+      const filename = `tour-${req.params.id}-${Date.now()}-${index + 1}.jpeg`;
+
+      await sharp(file.buffer) // provide the image from the memory
+        .resize(2000, 1333) // resolution
+        .toFormat('jpeg') // file format
+        .jpeg({ quality: 90 }) // quality
+        .toFile(`public/img/tours/${filename}`); // location and file name to save
+
+      req.body.images.push(filename);
+    })
+  );
+
+  next();
+});
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
