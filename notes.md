@@ -52,3 +52,6 @@ to update packages
 3. setImmediate callbacks
 4. Close callbacks
 5. any pending timers or callbacks ? repeat loop : exit program
+
+- Email template adapted from https://github.com/leemunroe/responsive-html-email-template
+- Converted from HTML using https://html2pug.now.sh/
