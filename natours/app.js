@@ -15,6 +15,7 @@ const viewRouter = require('./routes/viewRouts');
 const tourRouter = require('./routes/tourRouts');
 const userRouter = require('./routes/userRouts');
 const reviewRouter = require('./routes/reviewRouts');
+const bookingRouter = require('./routes/bookingRouts');
 
 const app = express();
 
@@ -35,7 +36,9 @@ app.use(
         "'self'",
         'https://api.mapbox.com',
         'https://cdnjs.cloudflare.com',
+        'https://js.stripe.com',
       ],
+      'frame-src': ["'self'", 'https://js.stripe.com'],
       // Other directives...
     },
   })
@@ -94,6 +97,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 // This middleware only runs of the path doesnt match any routers
 // app.all() will take all get,post,put,delete methods
