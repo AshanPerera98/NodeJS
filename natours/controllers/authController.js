@@ -12,14 +12,15 @@ const generateToken = (id) => {
   });
 };
 
-const sendJWTToken = (user, statusCode, res) => {
+const sendJWTToken = (user, statusCode, req, res) => {
   // creating the JWT token
   const token = generateToken(user._id);
 
   // creating a cookie containing tthe jwt
   res.cookie('jwt', token, {
     expires: new Date(Date.now() + process.env.JWT_COOKIE_TTL * 60 * 1000),
-    secure: process.env.NODE_ENV === 'production' ? true : false, // make the cookie encrypted when using https
+    // secure: process.env.NODE_ENV === 'production' ? true : false, // make the cookie encrypted when using https
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https', // cookie encryption altered to support heroku
     httpOnly: true, // make the cookie non editable in the browser
   });
 
@@ -51,7 +52,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   await new Email(user, url).sendWelcome();
 
   // sending the JWT token
-  sendJWTToken(user, 201, res);
+  sendJWTToken(user, 201, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -69,7 +70,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Wrong username or password', 401));
   }
   // sending the JWT token
-  sendJWTToken(user, 200, res);
+  sendJWTToken(user, 200, req, res);
 });
 
 // setting a new cookie with no data that will expire sooner to logout the user
@@ -245,7 +246,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // Update the passwordChangedAt (this is done through document middleware in user model)
   // Login the user and send JWT
-  sendJWTToken(user, 200, res);
+  sendJWTToken(user, 200, req, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -263,5 +264,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 4) Logwith new password and send new JWT
-  sendJWTToken(user, 200, res);
+  sendJWTToken(user, 200, req, res);
 });

@@ -6,7 +6,9 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const compression = require('compression');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 const AppError = require('./utils/appError');
 const ErrorController = require('./controllers/errorController');
@@ -19,10 +21,25 @@ const bookingRouter = require('./routes/bookingRouts');
 
 const app = express();
 
+app.enable('trust proxy'); // enable proxy for heroku req forwarding
+
 // initializing template engine for express (pug)
 app.set('view engine', 'pug');
 // setting views directory
 app.set('views', path.join(__dirname, 'views'));
+
+// enable CROS origin requests for all (*)
+app.use(cors());
+
+// enable CROS for only one origin
+// app.use(
+//   cors({
+//     origin: 'https://www.forntend.com',
+//   })
+// );
+
+// enable CROS for complex (PUT, PATCH, DELETE) req through options
+app.options('*', cors());
 
 // serve static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -53,6 +70,9 @@ app.use(mongoSanitize());
 
 // sanitize against Cross-site scripting
 app.use(xss());
+
+// compress text in responses
+app.use(compression());
 
 // protect against parameter polution
 app.use(

@@ -39,3 +39,11 @@ process.on('unhandledRejection', (err) => {
     process.exit(1); // exit the process after catching the unhandled rejection error with exit code 1
   });
 });
+
+// handle SIGTERM shutdown from heroku
+process.on('SIGTERM', () => {
+  console.log('🚫 Shutting down the server from SIGTERM...');
+  server.close(() => {
+    console.log('Process terminated');
+  });
+});
