@@ -2,6 +2,12 @@ const Tour = require('./../models/tourModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 
+exports.alerts = (req, res, next) => {
+  const { alert } = req.query;
+  if (alert === 'booking') res.locals.alert = 'Your booking was successful!';
+  next();
+};
+
 exports.getTour = catchAsync(async (req, res, next) => {
   // Get the data for the tour (including guides and reviews)
   const tour = await Tour.findOne({ slug: req.params.slug }).populate({

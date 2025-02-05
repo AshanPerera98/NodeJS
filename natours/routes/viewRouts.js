@@ -5,11 +5,14 @@ const {
   getLogin,
   getAccount,
   getMyTours,
+  alerts,
 } = require('./../controllers/viewController');
 const { createBookingCheckout } = require('./../controllers/bookingController');
 const { isLoggedIn, protect } = require('./../controllers/authController');
 
 const router = express.Router();
+
+router.use(alerts);
 
 // route for initial pug template
 // router.get('/', (req, res) => {
@@ -29,6 +32,6 @@ router.get('/login', isLoggedIn, getLogin);
 
 router.get('/me', protect, getAccount);
 
-router.get('/my-tours', createBookingCheckout, protect, getMyTours);
+router.get('/my-tours', /*createBookingCheckout,*/ protect, getMyTours);
 
 module.exports = router;

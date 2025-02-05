@@ -19,6 +19,8 @@ const userRouter = require('./routes/userRouts');
 const reviewRouter = require('./routes/reviewRouts');
 const bookingRouter = require('./routes/bookingRouts');
 
+const bookingController = require('./controllers/bookingController');
+
 const app = express();
 
 app.enable('trust proxy'); // enable proxy for heroku req forwarding
@@ -99,6 +101,12 @@ const limiter = rateLimit({
   windowMs: 60 * 1000, // time limit in ms
   message: 'Maximum request limit exeeded',
 });
+
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }), // body parser is added to prevent the req body from turning into json
+  bookingController.webhookCheckout
+);
 
 // setting rate limiter to "/api" route
 app.use('/api', limiter);
